@@ -133,6 +133,14 @@ class PlanGraphLevel(object):
         current_layer_propositions = self.proposition_layer.get_propositions()
         current_layer_mutex_actions = self.action_layer.get_mutex_actions()
 
+        prop_product = itertools.product(
+            current_layer_propositions, current_layer_propositions)
+
+        for p1, p2 in prop_product:
+            if p1.get_name() is not p2.get_name():
+                if mutex_propositions(p1, p2, current_layer_mutex_actions):
+                    self.proposition_layer.add_mutex_prop(p1, p2)
+
     def expand(self, previous_layer):
         """
         Your algorithm should work as follows:
