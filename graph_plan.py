@@ -70,9 +70,11 @@ class GraphPlan(object):
             pg_next = PlanGraphLevel()  # create new PlanGraph object
             pg_next.expand(
                 self.graph[level - 1])  # calls the expand function, which you are implementing in the PlanGraph class
-            self.graph.append(pg_next)  # appending the new level to the plan graph
+            # appending the new level to the plan graph
+            self.graph.append(pg_next)
 
-            size_no_good = len(self.no_goods[level])  # remember size of nogood table
+            # remember size of nogood table
+            size_no_good = len(self.no_goods[level])
 
         plan_solution = self.extract(self.graph, self.goal, level)
         # try to extract a plan since all of the goal propositions are in current graph level, and are not mutex
@@ -81,14 +83,18 @@ class GraphPlan(object):
             level = level + 1
             self.no_goods.append([])
             pg_next = PlanGraphLevel()  # create next level of the graph by expanding
-            pg_next.expand(self.graph[level - 1])  # create next level of the graph by expanding
+            # create next level of the graph by expanding
+            pg_next.expand(self.graph[level - 1])
             self.graph.append(pg_next)
-            plan_solution = self.extract(self.graph, self.goal, level)  # try to extract a plan again
-            if plan_solution is None and self.is_fixed(level):  # if failed and reached fixed point
+            # try to extract a plan again
+            plan_solution = self.extract(self.graph, self.goal, level)
+            # if failed and reached fixed point
+            if plan_solution is None and self.is_fixed(level):
                 if len(self.no_goods[level - 1]) == len(self.no_goods[level]):
                     # if size of nogood didn't change, means there's nothing more to do. We failed.
                     return None
-                size_no_good = len(self.no_goods[level])  # we didn't fail yet! update size of no good
+                # we didn't fail yet! update size of no good
+                size_no_good = len(self.no_goods[level])
         return plan_solution
 
     def extract(self, graph, sub_goals, level):
@@ -215,7 +221,29 @@ class GraphPlan(object):
         return True
 
 
-def independent_pair(a1, a2):
+def inconsistent_base(a1: Action, a2: Action):
+    for prop in a1.get_add():
+        if a2.is_neg_effect(prop):
+            return True
+    return False
+
+
+def inconsistent(a1: Action, a2: Action):
+    return inconsistent_base(a1, a2) or inconsistent_base(a2, a1)
+
+
+def interfere_base(a1: Action, a2: Action):
+    for prop in a1.get_pre():
+        if a2.is_neg_effect(prop):
+            return True
+    return False
+
+
+def interfere(a1, a2):
+    return interfere_base(a1, a2) or interfere_base(a2, a1)
+
+
+def independent_pair(a1: Action, a2: Action):
     """
     Returns true if the actions are neither have inconsistent effects
     nor they interfere one with the other.
@@ -227,7 +255,7 @@ def independent_pair(a1, a2):
     a1.is_pos_effect(p) returns true is p is in a1.get_add()
     a1.is_neg_effect(p) returns true is p is in a1.get_delete()
     """
-    "*** YOUR CODE HERE ***"
+    return not interfere(a1, a2) and not inconsistent(a1, a2)
 
 
 if __name__ == '__main__':
@@ -248,6 +276,7 @@ if __name__ == '__main__':
     plan = gp.graph_plan()
     elapsed = time.clock() - start
     if plan is not None:
-        print("Plan found with %d actions in %.2f seconds" % (len([act for act in plan if not act.is_noop()]), elapsed))
+        print("Plan found with %d actions in %.2f seconds" %
+              (len([act for act in plan if not act.is_noop()]), elapsed))
     else:
         print("Could not find a plan in %.2f seconds" % elapsed)
