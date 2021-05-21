@@ -102,17 +102,7 @@ class PlanningProblem:
             self.actions.append(act)
 
 
-def max_level(state, planning_problem: PlanningProblem):
-    """
-    The heuristic value is the number of layers required to expand all goal propositions.
-    If the goal is not reachable from the state your heuristic should return float('inf')
-    A good place to start would be:
-    prop_layer_init = PropositionLayer()          #create a new proposition layer
-    for prop in state:
-        prop_layer_init.add_proposition(prop)        #update the proposition layer with the propositions of the state
-    pg_init = PlanGraphLevel()                   #create a new plan graph level (level is the action layer and the propositions layer)
-    pg_init.set_proposition_layer(prop_layer_init)   #update the new plan graph level with the the proposition layer
-    """
+def expand_graph(state,  planning_problem: PlanningProblem):
     prop_layer_init = PropositionLayer()
     for prop in state:
         prop_layer_init.add_proposition(prop)
@@ -124,12 +114,30 @@ def max_level(state, planning_problem: PlanningProblem):
 
     while not planning_problem.is_goal_state(frozenset(graph[-1].get_proposition_layer().get_propositions())):
         if is_fixed(graph, level):
-            return float('inf')
+            return None
 
         level = level + 1
         pg_next = PlanGraphLevel()
         pg_next.expand_without_mutex(graph[-1])
         graph.append(pg_next)
+    return graph
+
+
+def max_level(state, planning_problem: PlanningProblem):
+    """
+    The heuristic value is the number of layers required to expand all goal propositions.
+    If the goal is not reachable from the state your heuristic should return float('inf')
+    A good place to start would be:
+    prop_layer_init = PropositionLayer()          #create a new proposition layer
+    for prop in state:
+        prop_layer_init.add_proposition(prop)        #update the proposition layer with the propositions of the state
+    pg_init = PlanGraphLevel()                   #create a new plan graph level (level is the action layer and the propositions layer)
+    pg_init.set_proposition_layer(prop_layer_init)   #update the new plan graph level with the the proposition layer
+    """
+    graph = expand_graph(state, planning_problem)
+
+    if graph is None:
+        return float('inf')
 
     return len(graph)
 
@@ -139,7 +147,19 @@ def level_sum(state, planning_problem):
     The heuristic value is the sum of sub-goals level they first appeared.
     If the goal is not reachable from the state your heuristic should return float('inf')
     """
-    "*** YOUR CODE HERE ***"
+    sub_goals = planning_problem.goal
+    graph = expand_graph(state, planning_problem)
+
+    if graph is None:
+        return float('inf')
+
+    score = 0
+    for i, level in enumerate(graph):
+        for prop in level.get_proposition_layer().get_propositions():
+            if prop in sub_goals:
+                score = score + i
+                sub_goals = sub_goals.difference(frozenset([prop]))
+    return score
 
 
 def is_fixed(graph, level):
