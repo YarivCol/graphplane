@@ -14,6 +14,52 @@
             "request": "launch",
             "program": "graph_plan.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "graphplan_dwr1",
+            "type": "python",
+            "args": [
+                "dwrDomain.txt",
+                "dwr1.txt"
+            ],
+            "request": "launch",
+            "program": "graph_plan.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "graphplan_dwr2",
+            "type": "python",
+            "args": [
+                "dwrDomain.txt",
+                "dwr2.txt"
+            ],
+            "request": "launch",
+            "program": "graph_plan.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "q10",
+            "type": "python",
+            "args": [
+                "dwrDomain.txt",
+                "dwrProblem.txt",
+                "zero"
+            ],
+            "request": "launch",
+            "program": "planning_problem.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "q11",
+            "type": "python",
+            "args": [
+                "dwrDomain.txt",
+                "dwrProblem.txt",
+                "max"
+            ],
+            "request": "launch",
+            "program": "planning_problem.py",
+            "console": "integratedTerminal"
         }
     ]
 }

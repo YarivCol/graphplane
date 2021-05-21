@@ -1,3 +1,5 @@
+from os import stat
+from typing import FrozenSet
 from util import Pair
 import copy
 from proposition_layer import PropositionLayer
@@ -41,15 +43,15 @@ class PlanningProblem:
         self.expanded = 0
 
     def get_start_state(self):
-        "*** YOUR CODE HERE ***"
+        return self.initialState
 
-    def is_goal_state(self, state):
+    def is_goal_state(self, state: FrozenSet):
         """
         Hint: you might want to take a look at goal_state_not_in_prop_payer function
         """
-        "*** YOUR CODE HERE ***"
+        return self.goal.issubset(state)
 
-    def get_successors(self, state):
+    def get_successors(self, state: FrozenSet):
         """
         For a given state, this should return a list of triples,
         (successor, action, step_cost), where 'successor' is a
@@ -63,10 +65,16 @@ class PlanningProblem:
         Note that a state *must* be hashable!! Therefore, you might want to represent a state as a frozenset
         """
         self.expanded += 1
-        "*** YOUR CODE HERE ***"
+        successors = []
+        for action in self.actions:
+            if action.all_preconds_in_list(state):
+                successors.append((state.difference(frozenset(action.get_delete())).union(frozenset(action.get_add())),
+                                  action, 1))
+
+        return successors
 
     @staticmethod
-    def get_cost_of_actions( actions):
+    def get_cost_of_actions(actions):
         return len(actions)
 
     def goal_state_not_in_prop_layer(self, propositions):
@@ -94,7 +102,7 @@ class PlanningProblem:
             self.actions.append(act)
 
 
-def max_level(state, planning_problem):
+def max_level(state, planning_problem: PlanningProblem):
     """
     The heuristic value is the number of layers required to expand all goal propositions.
     If the goal is not reachable from the state your heuristic should return float('inf')
@@ -105,7 +113,25 @@ def max_level(state, planning_problem):
     pg_init = PlanGraphLevel()                   #create a new plan graph level (level is the action layer and the propositions layer)
     pg_init.set_proposition_layer(prop_layer_init)   #update the new plan graph level with the the proposition layer
     """
-    "*** YOUR CODE HERE ***"
+    prop_layer_init = PropositionLayer()
+    for prop in state:
+        prop_layer_init.add_proposition(prop)
+    pg_init = PlanGraphLevel()
+    pg_init.set_proposition_layer(prop_layer_init)
+
+    level = 0
+    graph = [pg_init]
+
+    while not planning_problem.is_goal_state(frozenset(graph[-1].get_proposition_layer().get_propositions())):
+        if is_fixed(graph, level):
+            return float('inf')
+
+        level = level + 1
+        pg_next = PlanGraphLevel()
+        pg_next.expand_without_mutex(graph[-1])
+        graph.append(pg_next)
+
+    return len(graph)
 
 
 def level_sum(state, planning_problem):
@@ -151,7 +177,8 @@ if __name__ == '__main__':
         elif str(sys.argv[3]) == 'zero':
             heuristic = null_heuristic
         else:
-            print("Usage: planning_problem.py domain_name problem_name heuristic_name[max, sum, zero]")
+            print(
+                "Usage: planning_problem.py domain_name problem_name heuristic_name[max, sum, zero]")
             exit()
 
     prob = PlanningProblem(domain, problem)
@@ -159,7 +186,8 @@ if __name__ == '__main__':
     plan = a_star_search(prob, heuristic)
     elapsed = time.clock() - start
     if plan is not None:
-        print("Plan found with %d actions in %.2f seconds" % (len(plan), elapsed))
+        print("Plan found with %d actions in %.2f seconds" %
+              (len(plan), elapsed))
     else:
         print("Could not find a plan in %.2f seconds" % elapsed)
     print("Search nodes expanded: %d" % prob.expanded)
