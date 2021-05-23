@@ -117,6 +117,7 @@ class PlanGraphLevel(object):
                     prop_dict[prop.get_name()].add_producer(action)
                 else:
                     prop_dict[prop.get_name()] = copy.deepcopy(prop)
+                    prop_dict[prop.get_name()].set_producers([action])
 
         for prop_name in prop_dict:
             self.proposition_layer.add_proposition(prop_dict[prop_name])
