@@ -60,6 +60,17 @@
             "request": "launch",
             "program": "planning_problem.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "hanoi_debug",
+            "type": "python",
+            "args": [
+                "2",
+                "3"
+            ],
+            "request": "launch",
+            "program": "hanoi.py",
+            "console": "integratedTerminal"
         }
     ]
 }
