@@ -70,6 +70,17 @@
             ],
             "request": "launch",
             "program": "hanoi.py",
+        },
+        {
+            "name": "q12",
+            "type": "python",
+            "args": [
+                "dwrDomain.txt",
+                "dwrProblem.txt",
+                "sum"
+            ],
+            "request": "launch",
+            "program": "planning_problem.py",
             "console": "integratedTerminal"
         }
     ]
