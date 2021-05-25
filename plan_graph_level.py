@@ -68,7 +68,6 @@ class PlanGraphLevel(object):
         for action in all_actions:
             precon_product = itertools.product(
                 action.get_pre(), action.get_pre())
-
             precondtions_mutex = [not previous_proposition_layer.is_mutex(
                 prop1, prop2) for prop1, prop2 in precon_product if prop1.get_name() is not prop2.get_name()]
 
@@ -204,7 +203,7 @@ def mutex_propositions(prop1: Proposition, prop2: Proposition, mutex_actions_lis
     prop1.get_producers() returns the set of all the possible actions in the layer that have prop1 on their add list
     """
     for a1, a2 in itertools.product(prop1.get_producers(), prop2.get_producers()):
-        if a1.get_name() is not a2.get_name():
-            if Pair(a1, a2) not in mutex_actions_list:
-                return False
+        if Pair(a1, a2) not in mutex_actions_list:
+            return False       
     return True
+       # if a1.get_name() is not a2.get_name():

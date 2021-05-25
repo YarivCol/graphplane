@@ -78,7 +78,6 @@ class GraphPlan(object):
 
         plan_solution = self.extract(self.graph, self.goal, level)
         # try to extract a plan since all of the goal propositions are in current graph level, and are not mutex
-
         while plan_solution is None:  # while we didn't extract a plan successfully
             level = level + 1
             self.no_goods.append([])
@@ -257,6 +256,26 @@ def independent_pair(a1: Action, a2: Action):
     """
     return not interfere(a1, a2) and not inconsistent(a1, a2)
 
+
+def print_graph(levels):
+    for i,level in enumerate(levels):
+        print ("level" + str(i) + ":\n" + "Actions:\n")
+        for action in level.action_layer.get_actions():
+            print (action.get_name() + str(action.is_noop()) + "\n")
+        print("mutex_action:\n")
+        for mutex_action in level.action_layer.get_mutex_actions():
+            print (mutex_action.a.get_name() + str(mutex_action.a.is_noop()) + "with " +
+                    mutex_action.b.get_name() + str(mutex_action.b.is_noop()) + "\n")
+        print("props:\n")
+        for prop in level.proposition_layer.get_propositions():
+            print (prop.get_name() + "\n")
+        print("mutex_props:\n")
+        for mutex_prop in level.proposition_layer.get_mutex_props():
+            print (mutex_prop.a.get_name() + "with " +
+                    mutex_prop.b.get_name() + "\n")
+
+
+        
 
 if __name__ == '__main__':
     import sys
